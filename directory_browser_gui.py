@@ -8,10 +8,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QHeaderView, QLineEdit, QMainWindow,
-    QMenuBar, QPushButton, QScrollArea, QSizePolicy,
-    QSpacerItem, QSplitter, QStatusBar, QTreeView,
-    QWidget)
+    QHBoxLayout, QFileDialog, QHeaderView, QLineEdit, 
+    QMainWindow, QMenuBar, QPushButton, QScrollArea, 
+    QSizePolicy, QSpacerItem, QSplitter, QStatusBar, 
+    QTreeView, QWidget)
 
 import sys
 from multiprocessing import freeze_support
@@ -111,6 +111,7 @@ class MainWindow(QMainWindow):
         self.browse_button = QPushButton(self.groupBox)
         self.browse_button.setObjectName(u"browse_button")
         self.browse_button.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
+        self.browse_button.clicked.connect(lambda: self.folder_select(self.path_line_edit))
         sizePolicy.setHeightForWidth(self.browse_button.sizePolicy().hasHeightForWidth())
         self.browse_button.setSizePolicy(sizePolicy)
         self.gridLayout_2.addWidget(self.browse_button, 0, 1, 1, 1)
@@ -201,6 +202,17 @@ class MainWindow(QMainWindow):
         self.refresh_button.setDefault(False)
 
         QMetaObject.connectSlotsByName(MainWindow)
+
+    def folder_select(self, line_edit: QLineEdit) -> None:
+        """
+        Opens a file dialog to select an input or folder.
+
+        :param line_edit: A QLineEdit object where the selected folder path will be set.
+        :return: None
+        """
+        folderpath = QFileDialog.getExistingDirectory(self, f"Select input folder")
+        line_edit.setText(folderpath)
+
 
 if __name__ == "__main__":
     freeze_support()
