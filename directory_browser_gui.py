@@ -21,8 +21,17 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QSpacerItem, QSplitter, QStatusBar, QTreeView,
     QWidget)
 
-class Ui_MainWindow(object):
+import sys
+from multiprocessing import freeze_support
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.setupUi(self)
+
     def setupUi(self, MainWindow):
+
+        ### Set up main GUI components (MainWindow, centralwidget, splitter) ###
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(911, 789)
@@ -33,6 +42,7 @@ class Ui_MainWindow(object):
         MainWindow.setSizePolicy(sizePolicy)
         MainWindow.setMinimumSize(QSize(662, 461))
         MainWindow.setLayoutDirection(Qt.LayoutDirection.LeftToRight)
+        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"Directory Browser", None))
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
         self.centralwidget.setMinimumSize(QSize(662, 400))
@@ -58,18 +68,34 @@ class Ui_MainWindow(object):
         self.splitter.setOpaqueResize(True)
         self.splitter.setHandleWidth(4)
         self.splitter.setChildrenCollapsible(False)
-        self.LeftWidgetContainer = QWidget(self.splitter)
-        self.LeftWidgetContainer.setObjectName(u"LeftWidgetContainer")
+
+        self.horizontalLayout.addWidget(self.splitter)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QMenuBar(MainWindow)
+        self.menubar.setObjectName(u"menubar")
+        self.menubar.setGeometry(QRect(0, 0, 911, 22))
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QStatusBar(MainWindow)
+        self.statusbar.setObjectName(u"statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        ### Set up left widget container (path input, directory tree view) ###
+        self.left_widget_container = QWidget(self.splitter)
+        self.left_widget_container.setObjectName(u"left_widget_container")
         sizePolicy2 = QSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.MinimumExpanding)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.LeftWidgetContainer.sizePolicy().hasHeightForWidth())
-        self.LeftWidgetContainer.setSizePolicy(sizePolicy2)
-        self.LeftWidgetContainer.setMinimumSize(QSize(325, 300))
-        self.gridLayout_3 = QGridLayout(self.LeftWidgetContainer)
+        sizePolicy2.setHeightForWidth(self.left_widget_container.sizePolicy().hasHeightForWidth())
+        self.left_widget_container.setSizePolicy(sizePolicy2)
+        self.left_widget_container.setMinimumSize(QSize(325, 300))
+        self.gridLayout_3 = QGridLayout(self.left_widget_container)
         self.gridLayout_3.setObjectName(u"gridLayout_3")
-        self.groupBox = QGroupBox(self.LeftWidgetContainer)
+        
+
+        self.groupBox = QGroupBox(self.left_widget_container)
         self.groupBox.setObjectName(u"groupBox")
+        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Input Path", None))
         sizePolicy3 = QSizePolicy(QSizePolicy.Policy.MinimumExpanding, QSizePolicy.Policy.Fixed)
         sizePolicy3.setHorizontalStretch(0)
         sizePolicy3.setVerticalStretch(0)
@@ -79,6 +105,7 @@ class Ui_MainWindow(object):
         self.groupBox.setMaximumSize(QSize(16777215, 16777215))
         self.gridLayout_2 = QGridLayout(self.groupBox)
         self.gridLayout_2.setObjectName(u"gridLayout_2")
+        
         self.path_line_edit = QLineEdit(self.groupBox)
         self.path_line_edit.setObjectName(u"path_line_edit")
         sizePolicy4 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
@@ -87,29 +114,29 @@ class Ui_MainWindow(object):
         sizePolicy4.setHeightForWidth(self.path_line_edit.sizePolicy().hasHeightForWidth())
         self.path_line_edit.setSizePolicy(sizePolicy4)
         self.path_line_edit.setMinimumSize(QSize(100, 0))
-
         self.gridLayout_2.addWidget(self.path_line_edit, 0, 0, 1, 1)
 
         self.browse_button = QPushButton(self.groupBox)
         self.browse_button.setObjectName(u"browse_button")
+        self.browse_button.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
         sizePolicy.setHeightForWidth(self.browse_button.sizePolicy().hasHeightForWidth())
         self.browse_button.setSizePolicy(sizePolicy)
-
         self.gridLayout_2.addWidget(self.browse_button, 0, 1, 1, 1)
 
         self.recursive_check_box = QCheckBox(self.groupBox)
         self.recursive_check_box.setObjectName(u"recursive_check_box")
+        self.recursive_check_box.setText(QCoreApplication.translate("MainWindow", u"Recursive", None))
         sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         sizePolicy5.setHorizontalStretch(0)
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.recursive_check_box.sizePolicy().hasHeightForWidth())
         self.recursive_check_box.setSizePolicy(sizePolicy5)
         self.recursive_check_box.setMinimumSize(QSize(50, 0))
-
         self.gridLayout_2.addWidget(self.recursive_check_box, 1, 0, 1, 1)
 
         self.refresh_button = QPushButton(self.groupBox)
         self.refresh_button.setObjectName(u"refresh_button")
+        self.refresh_button.setText(QCoreApplication.translate("MainWindow", u" Refresh", None))
         sizePolicy.setHeightForWidth(self.refresh_button.sizePolicy().hasHeightForWidth())
         self.refresh_button.setSizePolicy(sizePolicy)
         self.refresh_button.setMinimumSize(QSize(20, 20))
@@ -119,13 +146,11 @@ class Ui_MainWindow(object):
         icon.addFile(u"../assets/refresh-arrows.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
         self.refresh_button.setIcon(icon)
         self.refresh_button.setFlat(False)
-
         self.gridLayout_2.addWidget(self.refresh_button, 1, 1, 1, 1)
-
 
         self.gridLayout_3.addWidget(self.groupBox, 0, 0, 1, 1)
 
-        self.directory_tree_view = QTreeView(self.LeftWidgetContainer)
+        self.directory_tree_view = QTreeView(self.left_widget_container)
         self.directory_tree_view.setObjectName(u"directory_tree_view")
         sizePolicy2.setHeightForWidth(self.directory_tree_view.sizePolicy().hasHeightForWidth())
         self.directory_tree_view.setSizePolicy(sizePolicy2)
@@ -134,18 +159,21 @@ class Ui_MainWindow(object):
 
         self.gridLayout_3.addWidget(self.directory_tree_view, 1, 0, 1, 1)
 
-        self.splitter.addWidget(self.LeftWidgetContainer)
-        self.RightWidgetContainer = QWidget(self.splitter)
-        self.RightWidgetContainer.setObjectName(u"RightWidgetContainer")
+        self.splitter.addWidget(self.left_widget_container)
+
+        ### Set up right widget container (inspector, execute button) ###
+        self.right_widget_container = QWidget(self.splitter)
+        self.right_widget_container.setObjectName(u"right_widget_container")
+        self.splitter.addWidget(self.right_widget_container)
         sizePolicy6 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
         sizePolicy6.setHorizontalStretch(0)
         sizePolicy6.setVerticalStretch(0)
-        sizePolicy6.setHeightForWidth(self.RightWidgetContainer.sizePolicy().hasHeightForWidth())
-        self.RightWidgetContainer.setSizePolicy(sizePolicy6)
-        self.RightWidgetContainer.setMinimumSize(QSize(325, 300))
-        self.gridLayout_4 = QGridLayout(self.RightWidgetContainer)
+        sizePolicy6.setHeightForWidth(self.right_widget_container.sizePolicy().hasHeightForWidth())
+        self.right_widget_container.setSizePolicy(sizePolicy6)
+        self.right_widget_container.setMinimumSize(QSize(325, 300))
+        self.gridLayout_4 = QGridLayout(self.right_widget_container)
         self.gridLayout_4.setObjectName(u"gridLayout_4")
-        self.inspector_scroll_area = QScrollArea(self.RightWidgetContainer)
+        self.inspector_scroll_area = QScrollArea(self.right_widget_container)
         self.inspector_scroll_area.setObjectName(u"inspector_scroll_area")
         sizePolicy2.setHeightForWidth(self.inspector_scroll_area.sizePolicy().hasHeightForWidth())
         self.inspector_scroll_area.setSizePolicy(sizePolicy2)
@@ -166,8 +194,9 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addItem(self.bottom_vertical_spacer, 2, 0, 1, 1)
 
-        self.execute_push_button = QPushButton(self.RightWidgetContainer)
+        self.execute_push_button = QPushButton(self.right_widget_container)
         self.execute_push_button.setObjectName(u"execute_push_button")
+        self.execute_push_button.setText(QCoreApplication.translate("MainWindow", u" Execute", None))
         sizePolicy5.setHeightForWidth(self.execute_push_button.sizePolicy().hasHeightForWidth())
         self.execute_push_button.setSizePolicy(sizePolicy5)
         self.execute_push_button.setMinimumSize(QSize(120, 50))
@@ -177,42 +206,15 @@ class Ui_MainWindow(object):
 
         self.gridLayout_4.addWidget(self.execute_push_button, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
 
-        self.splitter.addWidget(self.RightWidgetContainer)
-
-        self.horizontalLayout.addWidget(self.splitter)
-
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QMenuBar(MainWindow)
-        self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 911, 22))
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QStatusBar(MainWindow)
-        self.statusbar.setObjectName(u"statusbar")
-        MainWindow.setStatusBar(self.statusbar)
-
-        self.retranslateUi(MainWindow)
-
         self.refresh_button.setDefault(False)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
-    # setupUi
-
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.groupBox.setTitle(QCoreApplication.translate("MainWindow", u"Input Path", None))
-        self.browse_button.setText(QCoreApplication.translate("MainWindow", u"Browse", None))
-        self.recursive_check_box.setText(QCoreApplication.translate("MainWindow", u"Recursive", None))
-        self.refresh_button.setText(QCoreApplication.translate("MainWindow", u" Refresh", None))
-        self.execute_push_button.setText(QCoreApplication.translate("MainWindow", u" Execute", None))
-    # retranslateUi
-
 
 if __name__ == "__main__":
-    import sys
-    app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    freeze_support()
+    app = QApplication([])
+
+    window = MainWindow()
+    window.show()
+
     sys.exit(app.exec())
