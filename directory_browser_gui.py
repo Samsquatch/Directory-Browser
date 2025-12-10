@@ -137,9 +137,7 @@ class MainWindow(QMainWindow):
         self.refresh_button.setMinimumSize(QSize(20, 20))
         self.refresh_button.setAutoFillBackground(False)
         self.refresh_button.setStyleSheet(u"")
-        icon = QIcon()
-        icon.addFile(u"../assets/refresh-arrows.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.refresh_button.setIcon(icon)
+        self.set_widget_icon(self.refresh_button, "refresh-arrows.png")
         self.refresh_button.setFlat(False)
         self.gridLayout_2.addWidget(self.refresh_button, 1, 1, 1, 1)
 
@@ -195,9 +193,7 @@ class MainWindow(QMainWindow):
         sizePolicy5.setHeightForWidth(self.execute_push_button.sizePolicy().hasHeightForWidth())
         self.execute_push_button.setSizePolicy(sizePolicy5)
         self.execute_push_button.setMinimumSize(QSize(120, 50))
-        icon1 = QIcon()
-        icon1.addFile(u"../assets/play-button.png", QSize(), QIcon.Mode.Normal, QIcon.State.Off)
-        self.execute_push_button.setIcon(icon1)
+        self.set_widget_icon(self.execute_push_button, "play-button.png")
 
         self.gridLayout_4.addWidget(self.execute_push_button, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
 
@@ -229,6 +225,22 @@ class MainWindow(QMainWindow):
             icon.addFile(icon_path)
             window.setWindowIcon(icon)
     
+    def set_widget_icon(self, widget: QWidget, icon_name: str) -> None:
+        """
+        Sets the widget icon for a given widget.
+
+        :param widget: A QWidget object for which the icon will be set.
+        :param icon_name: A string representing the icon file name.
+        :return: None
+        """
+        icon = QIcon()
+        data_path = os.path.abspath(os.path.dirname(__file__))
+        icon_path = os.path.join(data_path, "gui_assets", icon_name)
+        print(f"icon_path: {icon_path}")
+        if os.path.isfile(icon_path):
+            icon.addFile(icon_path)
+            widget.setIcon(icon)
+
 
 if __name__ == "__main__":
     freeze_support()
