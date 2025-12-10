@@ -224,10 +224,8 @@ class MainWindow(QMainWindow):
         """
         icon = QIcon()
         data_path = os.path.abspath(os.path.dirname(__file__))
-        print(f"data_path: {data_path}")
-        print(f"asset_path: {os.path.join(data_path, "gui_assets", "folder.png")}")
-        if os.path.isfile(os.path.join(data_path, "gui_assets", "folder.png")):
-            icon_path = os.path.join(data_path, "gui_assets", "folder.png")
+        icon_path = os.path.join(data_path, "gui_assets", "folder.png")
+        if os.path.isfile(os.path.join(icon_path)):
             icon.addFile(icon_path)
             window.setWindowIcon(icon)
     
