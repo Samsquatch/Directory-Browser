@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QTreeView, QWidget)
 
 import sys
+import os
 from multiprocessing import freeze_support
 
 class MainWindow(QMainWindow):
@@ -27,6 +28,7 @@ class MainWindow(QMainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(911, 789)
+        self.set_window_icon(MainWindow)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -213,6 +215,22 @@ class MainWindow(QMainWindow):
         folderpath = QFileDialog.getExistingDirectory(self, f"Select input folder")
         line_edit.setText(folderpath)
 
+    def set_window_icon(self, window: QWidget) -> None:
+        """
+        Sets the window icon for a given widget.
+
+        :param widget: A QWidget object for which the icon will be set.
+        :return: None
+        """
+        icon = QIcon()
+        data_path = os.path.abspath(os.path.dirname(__file__))
+        print(f"data_path: {data_path}")
+        print(f"asset_path: {os.path.join(data_path, "gui_assets", "folder.png")}")
+        if os.path.isfile(os.path.join(data_path, "gui_assets", "folder.png")):
+            icon_path = os.path.join(data_path, "gui_assets", "folder.png")
+            icon.addFile(icon_path)
+            window.setWindowIcon(icon)
+    
 
 if __name__ == "__main__":
     freeze_support()
