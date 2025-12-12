@@ -8,10 +8,10 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
-    QHBoxLayout, QFileDialog, QHeaderView, QLineEdit, 
-    QMainWindow, QMenuBar, QPushButton, QScrollArea, 
-    QSizePolicy, QSpacerItem, QSplitter, QStatusBar, 
-    QTreeView, QWidget)
+    QHBoxLayout, QFileDialog, QMessageBox, QHeaderView, 
+    QLineEdit, QMainWindow, QMenuBar, QPushButton, 
+    QScrollArea, QSizePolicy, QSpacerItem, QSplitter, 
+    QStatusBar, QTreeView, QWidget)
 
 import sys
 import os
@@ -268,9 +268,47 @@ class MainWindow(QMainWindow):
                         if entry.is_file() and files:
                             file_list.append(entry.path)
         except FileNotFoundError:
+            self.messagebox("error", "Path Not Found", f"The directory \"{path}\" does not exist.")
             # path doesn't exist; return empty list
             pass
         print(f"{file_list=}") 
+    
+    def messagebox(self, message_type:str, title:str, message:str) -> bool:
+        """
+        Displays a message box with a given title and message.
+
+        :param message_type: A string indicating the type of message box to display. Expected: "warning", "error", or "info".
+        :param title: A string containing the error title of the message box.
+        :param message: A string containing the error message.
+        :param worker_thread: A QThread object. (Optional)
+        :return: A boolean indicating whether the user clicked 'OK' or 'Cancel'.
+        """
+        print(f"message_type: {message_type}")
+        msg_box = QMessageBox()
+        self.set_window_icon(window=msg_box)
+        msg_box.setWindowTitle(title)
+        msg_box.setText(message)
+        msg_box.setWindowModality(Qt.ApplicationModal)
+        msg_box.setWindowFlags(Qt.WindowTitleHint | Qt.CustomizeWindowHint)
+
+        if message_type == "warning":
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        elif message_type == "error":
+            msg_box.setIcon(QMessageBox.Critical)
+            msg_box.setStandardButtons(QMessageBox.Ok)
+        elif message_type == "info":
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setStandardButtons(QMessageBox.Ok)
+        else:
+            print(f"Invaild message type: {message_type}")
+        
+        button = msg_box.exec()
+
+        if button == QMessageBox.Ok:
+            return True
+        if button == QMessageBox.Cancel:
+            return False
 
 
 if __name__ == "__main__":
