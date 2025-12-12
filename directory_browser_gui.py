@@ -269,7 +269,6 @@ class MainWindow(QMainWindow):
                             file_list.append(entry.path)
         except FileNotFoundError:
             self.messagebox("error", "Path Not Found", f"The directory \"{path}\" does not exist.")
-            # path doesn't exist; return empty list
             pass
         print(f"{file_list=}") 
     
@@ -307,7 +306,7 @@ class MainWindow(QMainWindow):
 
         if button == QMessageBox.Ok:
             return True
-        if button == QMessageBox.Cancel:
+        elif button == QMessageBox.Cancel:
             return False
 
 
