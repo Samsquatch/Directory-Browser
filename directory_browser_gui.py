@@ -129,17 +129,18 @@ class MainWindow(QMainWindow):
         self.recursive_check_box.setMinimumSize(QSize(50, 0))
         self.gridLayout_2.addWidget(self.recursive_check_box, 1, 0, 1, 1)
 
-        self.refresh_button = QPushButton(self.groupBox)
-        self.refresh_button.setObjectName(u"refresh_button")
-        self.refresh_button.setText(QCoreApplication.translate("MainWindow", u" Refresh", None))
-        sizePolicy.setHeightForWidth(self.refresh_button.sizePolicy().hasHeightForWidth())
-        self.refresh_button.setSizePolicy(sizePolicy)
-        self.refresh_button.setMinimumSize(QSize(20, 20))
-        self.refresh_button.setAutoFillBackground(False)
-        self.refresh_button.setStyleSheet(u"")
-        self.set_widget_icon(self.refresh_button, "refresh-arrows.png")
-        self.refresh_button.setFlat(False)
-        self.gridLayout_2.addWidget(self.refresh_button, 1, 1, 1, 1)
+        self.scan_button = QPushButton(self.groupBox)
+        self.scan_button.setObjectName(u"scan_button")
+        self.scan_button.setText(QCoreApplication.translate("MainWindow", u" Scan", None))
+        self.scan_button.clicked.connect(lambda: self.scan_directory(self.path_line_edit.text(), files=True, recursive=self.recursive_check_box.isChecked()))
+        sizePolicy.setHeightForWidth(self.scan_button.sizePolicy().hasHeightForWidth())
+        self.scan_button.setSizePolicy(sizePolicy)
+        self.scan_button.setMinimumSize(QSize(20, 20))
+        self.scan_button.setAutoFillBackground(False)
+        self.scan_button.setStyleSheet(u"")
+        self.set_widget_icon(self.scan_button, "refresh-arrows.png")
+        self.scan_button.setFlat(False)
+        self.gridLayout_2.addWidget(self.scan_button, 1, 1, 1, 1)
 
         self.gridLayout_3.addWidget(self.groupBox, 0, 0, 1, 1)
 
@@ -197,7 +198,7 @@ class MainWindow(QMainWindow):
 
         self.gridLayout_4.addWidget(self.execute_push_button, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
 
-        self.refresh_button.setDefault(False)
+        self.scan_button.setDefault(False)
 
         QMetaObject.connectSlotsByName(MainWindow)
 
@@ -240,6 +241,36 @@ class MainWindow(QMainWindow):
         if os.path.isfile(icon_path):
             icon.addFile(icon_path)
             widget.setIcon(icon)
+
+    def scan_directory(self, path: str, files: bool=True, recursive: bool=True) -> list:
+        """
+        Scans a directory for files and/or folders.
+
+        :param path: A string representing the directory path to scan.
+        :param files: A boolean indicating whether to include files in the scan results. Default is True.
+        :param recursive: A boolean indicating whether to scan directories recursively. Default is True.
+        :return: A list of file and/or folder paths found in the specified directory.
+        """
+        file_list = []
+        try:
+            if recursive:
+                for root, dirs, files in os.walk(path):
+                    for d in dirs:
+                        file_list.append(f"Dir: {os.path.join(root, d)}")
+                    if files:
+                        for f in files:
+                            file_list.append(f"File: {os.path.join(root, f)}")
+            else:
+                with os.scandir(path) as it:
+                    for entry in it:
+                        if entry.is_dir():
+                            file_list.append(entry.path)
+                        if entry.is_file() and files:
+                            file_list.append(entry.path)
+        except FileNotFoundError:
+            # path doesn't exist; return empty list
+            pass
+        print(f"{file_list=}") 
 
 
 if __name__ == "__main__":
