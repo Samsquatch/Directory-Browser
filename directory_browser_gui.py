@@ -11,7 +11,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QHBoxLayout, QFileDialog, QMessageBox, QHeaderView, 
     QLineEdit, QMainWindow, QMenuBar, QPushButton, 
     QScrollArea, QSizePolicy, QSpacerItem, QSplitter, 
-    QStatusBar, QTreeView, QWidget)
+    QStatusBar, QTreeView, QWidget, QFileSystemModel)
 
 import sys
 import os
@@ -241,36 +241,6 @@ class MainWindow(QMainWindow):
         if os.path.isfile(icon_path):
             icon.addFile(icon_path)
             widget.setIcon(icon)
-
-    def scan_directory(self, path: str, files: bool=True, recursive: bool=True) -> list:
-        """
-        Scans a directory for files and/or folders.
-
-        :param path: A string representing the directory path to scan.
-        :param files: A boolean indicating whether to include files in the scan results. Default is True.
-        :param recursive: A boolean indicating whether to scan directories recursively. Default is True.
-        :return: A list of file and/or folder paths found in the specified directory.
-        """
-        file_list = []
-        try:
-            if recursive:
-                for root, dirs, files in os.walk(path):
-                    for d in dirs:
-                        file_list.append(f"Dir: {os.path.join(root, d)}")
-                    if files:
-                        for f in files:
-                            file_list.append(f"File: {os.path.join(root, f)}")
-            else:
-                with os.scandir(path) as it:
-                    for entry in it:
-                        if entry.is_dir():
-                            file_list.append(entry.path)
-                        if entry.is_file() and files:
-                            file_list.append(entry.path)
-        except FileNotFoundError:
-            self.messagebox("error", "Path Not Found", f"The directory \"{path}\" does not exist.")
-            pass
-        return file_list
     
     def populate_tree_view(self, path: str, recursive: bool=True, files: bool=False) -> None:
         """
@@ -302,6 +272,14 @@ class MainWindow(QMainWindow):
                 self.directory_tree_view.setModel(model)
                 print(f"Set tree view to non-recursive without files at path: {path}")
             
+            elif files:
+                model = CheckableFileSystemModel()
+                model.setRootPath(path)
+                self.directory_tree_view.setModel(model)
+                index = model.index(path)
+                self.directory_tree_view.setRootIndex(index)
+                print(f"Set tree view to recursive with files at path: {path}")
+
         except Exception as e:
             self.messagebox("error", "Error Scanning Directory", str(e))
             return
@@ -342,6 +320,60 @@ class MainWindow(QMainWindow):
             return True
         elif button == QMessageBox.Cancel:
             return False
+
+
+class CheckableFileSystemModel(QFileSystemModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._checked = {}  # path → Qt.CheckState
+
+    def flags(self, index):
+        default = super().flags(index)
+        if not index.isValid():
+            return default
+
+        # Only column 0 gets a checkbox
+        if index.column() == 0:
+            return default | Qt.ItemIsUserCheckable
+
+        return default
+
+    def data(self, index, role):
+        if role == Qt.CheckStateRole and index.column() == 0:
+            path = self.filePath(index)
+            return self._checked.get(path, Qt.Unchecked)
+
+        return super().data(index, role)
+
+    def setData(self, index, value, role):
+        if role == Qt.CheckStateRole and index.column() == 0:
+            path = self.filePath(index)
+            self._checked[path] = value
+
+            # If it's a folder, recursively apply to all children
+            if self.isDir(index):
+                self._set_children_recursive(index, value)
+
+            self.dataChanged.emit(index, index, [Qt.CheckStateRole])
+            return True
+
+        return super().setData(index, value, role)
+
+    def _set_children_recursive(self, parent_index, value):
+        """Recursively apply check state to all descendants."""
+        rows = self.rowCount(parent_index)
+
+        for row in range(rows):
+            child = self.index(row, 0, parent_index)
+            child_path = self.filePath(child)
+
+            # Set check state
+            self._checked[child_path] = value
+            self.dataChanged.emit(child, child, [Qt.CheckStateRole])
+
+            # If child is a folder, recurse
+            if self.isDir(child):
+                self._set_children_recursive(child, value)
 
 
 if __name__ == "__main__":
