@@ -2,9 +2,9 @@
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt)
+    QSize, QTime, QUrl, Qt, QDir)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
-    QFont, QFontDatabase, QGradient, QIcon,
+    QFont, QFontDatabase, QGradient, QIcon, QStandardItem, QStandardItemModel,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
         self.scan_button = QPushButton(self.groupBox)
         self.scan_button.setObjectName(u"scan_button")
         self.scan_button.setText(QCoreApplication.translate("MainWindow", u" Scan", None))
-        self.scan_button.clicked.connect(lambda: self.scan_directory(self.path_line_edit.text(), files=True, recursive=self.recursive_check_box.isChecked()))
+        self.scan_button.clicked.connect(lambda: self.populate_tree_view(self.path_line_edit.text(), recursive=self.recursive_check_box.isChecked()))
         sizePolicy.setHeightForWidth(self.scan_button.sizePolicy().hasHeightForWidth())
         self.scan_button.setSizePolicy(sizePolicy)
         self.scan_button.setMinimumSize(QSize(20, 20))
@@ -270,7 +270,41 @@ class MainWindow(QMainWindow):
         except FileNotFoundError:
             self.messagebox("error", "Path Not Found", f"The directory \"{path}\" does not exist.")
             pass
-        print(f"{file_list=}") 
+        return file_list
+    
+    def populate_tree_view(self, path: str, recursive: bool=True, files: bool=False) -> None:
+        """
+        Populates the directory tree view with a list of files and/or folders.
+
+        :param path: A string representing the directory path to scan.
+        :param recursive: A boolean indicating whether to scan directories recursively. Default is True.
+        :param files: A boolean indicating whether to include files in the scan results. Default is True.
+        :return: None
+        """
+    
+        try:
+            if not recursive and not files:
+                model = QStandardItemModel()
+                self.directory_tree_view.setHeaderHidden(True)
+
+                dir = QDir(path)
+                dir.setFilter(QDir.Dirs | QDir.NoDotAndDotDot)
+
+                for folder in dir.entryList():
+                    item = QStandardItem(folder)
+                    item.setCheckState(Qt.Unchecked)
+                    item.setCheckable(True)
+                    data_path = os.path.abspath(os.path.dirname(__file__))
+                    icon_path = os.path.join(data_path, "gui_assets", "folder.png")
+                    item.setIcon(QIcon(icon_path))
+
+                    model.appendRow(item)
+                self.directory_tree_view.setModel(model)
+                print(f"Set tree view to non-recursive without files at path: {path}")
+            
+        except Exception as e:
+            self.messagebox("error", "Error Scanning Directory", str(e))
+            return
     
     def messagebox(self, message_type:str, title:str, message:str) -> bool:
         """
