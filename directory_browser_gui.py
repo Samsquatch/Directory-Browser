@@ -118,21 +118,10 @@ class MainWindow(QMainWindow):
         self.browse_button.setSizePolicy(sizePolicy)
         self.gridLayout_2.addWidget(self.browse_button, 0, 1, 1, 1)
 
-        self.recursive_check_box = QCheckBox(self.groupBox)
-        self.recursive_check_box.setObjectName(u"recursive_check_box")
-        self.recursive_check_box.setText(QCoreApplication.translate("MainWindow", u"Recursive", None))
-        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy5.setHorizontalStretch(0)
-        sizePolicy5.setVerticalStretch(0)
-        sizePolicy5.setHeightForWidth(self.recursive_check_box.sizePolicy().hasHeightForWidth())
-        self.recursive_check_box.setSizePolicy(sizePolicy5)
-        self.recursive_check_box.setMinimumSize(QSize(50, 0))
-        self.gridLayout_2.addWidget(self.recursive_check_box, 1, 0, 1, 1)
-
         self.scan_button = QPushButton(self.groupBox)
         self.scan_button.setObjectName(u"scan_button")
         self.scan_button.setText(QCoreApplication.translate("MainWindow", u" Scan", None))
-        self.scan_button.clicked.connect(lambda: self.populate_tree_view(self.path_line_edit.text(), recursive=self.recursive_check_box.isChecked()))
+        self.scan_button.clicked.connect(lambda: self.populate_tree_view(self.path_line_edit.text()))
         sizePolicy.setHeightForWidth(self.scan_button.sizePolicy().hasHeightForWidth())
         self.scan_button.setSizePolicy(sizePolicy)
         self.scan_button.setMinimumSize(QSize(20, 20))
@@ -192,6 +181,9 @@ class MainWindow(QMainWindow):
         self.execute_push_button.setObjectName(u"execute_push_button")
         self.execute_push_button.setText(QCoreApplication.translate("MainWindow", u" Execute", None))
         self.execute_push_button.clicked.connect(lambda: self.execute_action())
+        sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        sizePolicy5.setHorizontalStretch(0)
+        sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.execute_push_button.sizePolicy().hasHeightForWidth())
         self.execute_push_button.setSizePolicy(sizePolicy5)
         self.execute_push_button.setMinimumSize(QSize(120, 50))
@@ -243,18 +235,17 @@ class MainWindow(QMainWindow):
             icon.addFile(icon_path)
             widget.setIcon(icon)
     
-    def populate_tree_view(self, path: str, recursive: bool=True, files: bool=True) -> None:
+    def populate_tree_view(self, path: str, files: bool=True) -> None:
         """
         Populates the directory tree view with a list of files and/or folders.
 
         :param path: A string representing the directory path to scan.
-        :param recursive: A boolean indicating whether to scan directories recursively. Default is True.
         :param files: A boolean indicating whether to include files in the scan results. Default is True.
         :return: None
         """
     
         try:
-            if not recursive and not files:
+            if not files:
                 self.standard_item_model = QStandardItemModel()
                 self.directory_tree_view.setHeaderHidden(True)
 
