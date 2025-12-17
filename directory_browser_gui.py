@@ -191,6 +191,7 @@ class MainWindow(QMainWindow):
         self.execute_push_button = QPushButton(self.right_widget_container)
         self.execute_push_button.setObjectName(u"execute_push_button")
         self.execute_push_button.setText(QCoreApplication.translate("MainWindow", u" Execute", None))
+        self.execute_push_button.clicked.connect(lambda: self.get_checked_items())
         sizePolicy5.setHeightForWidth(self.execute_push_button.sizePolicy().hasHeightForWidth())
         self.execute_push_button.setSizePolicy(sizePolicy5)
         self.execute_push_button.setMinimumSize(QSize(120, 50))
@@ -254,7 +255,7 @@ class MainWindow(QMainWindow):
     
         try:
             if not recursive and not files:
-                model = QStandardItemModel()
+                self.standard_item_model = QStandardItemModel()
                 self.directory_tree_view.setHeaderHidden(True)
 
                 dir = QDir(path)
@@ -264,25 +265,55 @@ class MainWindow(QMainWindow):
                     item = QStandardItem(folder)
                     item.setCheckState(Qt.Unchecked)
                     item.setCheckable(True)
+                    item.setData(path + "/" + folder, Qt.UserRole)
                     data_path = os.path.abspath(os.path.dirname(__file__))
                     icon_path = os.path.join(data_path, "gui_assets", "folder.png")
                     item.setIcon(QIcon(icon_path))
 
-                    model.appendRow(item)
-                self.directory_tree_view.setModel(model)
+                    self.standard_item_model.appendRow(item)
+                self.directory_tree_view.setModel(self.standard_item_model)
                 print(f"Set tree view to non-recursive without files at path: {path}")
             
             elif files:
-                model = CheckableFileSystemModel()
-                model.setRootPath(path)
-                self.directory_tree_view.setModel(model)
-                index = model.index(path)
+                self.file_system_model = CheckableFileSystemModel()
+                self.file_system_model.setRootPath(path)
+                self.directory_tree_view.setModel(self.file_system_model)
+                index = self.file_system_model.index(path)
                 self.directory_tree_view.setRootIndex(index)
                 print(f"Set tree view to recursive with files at path: {path}")
 
         except Exception as e:
             self.messagebox("error", "Error Scanning Directory", str(e))
             return
+        
+    def get_checked_items(self) -> list:
+        """
+        Retrieves a list of checked items from the directory tree view.
+
+        :return: A list of strings representing the paths of checked items.
+        """
+        checked_items = []
+
+        if hasattr(self, 'standard_item_model'):
+            for row in range(self.standard_item_model.rowCount()):
+                item = self.standard_item_model.item(row)
+                if item.checkState() == Qt.Checked:
+                    checked_items.append(item.data(Qt.UserRole))
+
+        elif hasattr(self, 'file_system_model'):
+            for path, check_state in self.file_system_model._checked.items():
+                if Qt.CheckState(check_state) == Qt.CheckState.Checked:
+                    checked_items.append(path)
+        else:
+            raise ValueError("No model found to get checked items from.")
+        
+        if len(checked_items) == 0:
+            raise ValueError("No items checked.")
+
+        print(f"Checked items ({len(checked_items)}):")
+        for item in checked_items:
+            print(f" - {item}")
+        return checked_items
     
     def messagebox(self, message_type:str, title:str, message:str) -> bool:
         """
