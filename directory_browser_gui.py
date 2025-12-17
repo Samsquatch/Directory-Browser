@@ -191,7 +191,7 @@ class MainWindow(QMainWindow):
         self.execute_push_button = QPushButton(self.right_widget_container)
         self.execute_push_button.setObjectName(u"execute_push_button")
         self.execute_push_button.setText(QCoreApplication.translate("MainWindow", u" Execute", None))
-        self.execute_push_button.clicked.connect(lambda: self.get_checked_items())
+        self.execute_push_button.clicked.connect(lambda: self.execute_action())
         sizePolicy5.setHeightForWidth(self.execute_push_button.sizePolicy().hasHeightForWidth())
         self.execute_push_button.setSizePolicy(sizePolicy5)
         self.execute_push_button.setMinimumSize(QSize(120, 50))
@@ -243,7 +243,7 @@ class MainWindow(QMainWindow):
             icon.addFile(icon_path)
             widget.setIcon(icon)
     
-    def populate_tree_view(self, path: str, recursive: bool=True, files: bool=False) -> None:
+    def populate_tree_view(self, path: str, recursive: bool=True, files: bool=True) -> None:
         """
         Populates the directory tree view with a list of files and/or folders.
 
@@ -285,7 +285,23 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.messagebox("error", "Error Scanning Directory", str(e))
             return
-        
+
+    def execute_action(self) -> None:
+        """
+        Executes an action based on the checked items in the directory tree view.
+
+        :return: None
+        """
+        try:
+            checked_items = self.get_checked_items()
+            # Placeholder for action to be performed on checked items
+            print(f"Executing action on {len(checked_items)} checked items.")
+            for item in checked_items:
+                print(f" - {item}")
+        except ValueError as ve:
+            self.messagebox("error", "No Items found", str(ve))
+            return
+
     def get_checked_items(self) -> list:
         """
         Retrieves a list of checked items from the directory tree view.
@@ -310,9 +326,6 @@ class MainWindow(QMainWindow):
         if len(checked_items) == 0:
             raise ValueError("No items checked.")
 
-        print(f"Checked items ({len(checked_items)}):")
-        for item in checked_items:
-            print(f" - {item}")
         return checked_items
     
     def messagebox(self, message_type:str, title:str, message:str) -> bool:
