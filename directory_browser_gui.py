@@ -2,7 +2,7 @@
 
 from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
-    QSize, QTime, QUrl, Qt, QDir)
+    QSize, QTime, QUrl, Qt, QDir, QModelIndex, QItemSelection)
 from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon, QStandardItem, QStandardItemModel,
     QImage, QKeySequence, QLinearGradient, QPainter,
@@ -11,7 +11,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QHBoxLayout, QFileDialog, QMessageBox, QHeaderView, 
     QLineEdit, QMainWindow, QMenuBar, QPushButton, 
     QScrollArea, QSizePolicy, QSpacerItem, QSplitter, 
-    QStatusBar, QTreeView, QWidget, QFileSystemModel)
+    QStatusBar, QTreeView, QWidget, QFileSystemModel,
+    QVBoxLayout, QLabel)
 
 import sys
 import os
@@ -263,6 +264,7 @@ class MainWindow(QMainWindow):
 
                     self.standard_item_model.appendRow(item)
                 self.directory_tree_view.setModel(self.standard_item_model)
+                self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to non-recursive without files at path: {path}")
             
             elif files:
@@ -271,6 +273,7 @@ class MainWindow(QMainWindow):
                 self.directory_tree_view.setModel(self.file_system_model)
                 index = self.file_system_model.index(path)
                 self.directory_tree_view.setRootIndex(index)
+                self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to recursive with files at path: {path}")
 
         except Exception as e:
@@ -318,6 +321,66 @@ class MainWindow(QMainWindow):
             raise ValueError("No items checked.")
 
         return checked_items
+    
+    def get_item_path_from_index(self, index: QModelIndex) -> str|None:
+        """
+        Retrieves the file path from a given model index.
+
+        :param index: A QModelIndex object representing the selected item.
+        :return: A string representing the file path, or None if not found.
+        """
+
+        model = index.model()
+
+        if isinstance(model, CheckableFileSystemModel):
+            return model.filePath(index)
+
+        if isinstance(model, QStandardItemModel):
+            item = model.itemFromIndex(index)
+            return item.data(Qt.UserRole)  # the item's stored path
+
+        return None
+    
+    def build_details_widget(self, path: str) -> QWidget:
+        """
+        Builds a details widget for the selected item.
+        
+        :param path: A string representing the file or folder path.
+        :return: A QWidget object containing the details.
+        """
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        layout.addWidget(QLabel(f"<b>Path:</b> {path}"))
+
+        if os.path.exists(path):
+            size = os.path.getsize(path)
+            layout.addWidget(QLabel(f"Size: {size} bytes"))
+        
+        # Add more info depending on your needs
+
+        layout.addStretch()
+        return widget
+
+    def on_item_selected(self, selected: QItemSelection) -> None:
+        """
+        Called when an item is selected in the directory tree view.
+        
+        :param selected: A QItemSelection object representing the selected item.
+        :return: None
+        """
+
+        indexes = selected.indexes()
+        if not indexes:
+            return
+
+        index = indexes[0]
+        path = self.get_item_path_from_index(index)
+
+        if path:
+            widget = self.build_details_widget(path)
+            self.inspector_scroll_area.setWidget(widget)
+
     
     def messagebox(self, message_type:str, title:str, message:str) -> bool:
         """
