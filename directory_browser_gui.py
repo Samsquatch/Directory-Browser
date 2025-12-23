@@ -205,6 +205,7 @@ class MainWindow(QMainWindow):
         """
         folderpath = QFileDialog.getExistingDirectory(self, f"Select input folder")
         line_edit.setText(folderpath)
+        self.populate_tree_view(folderpath)
 
     def set_window_icon(self, window: QWidget) -> None:
         """
