@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         ### Set up main GUI components (MainWindow, centralwidget, splitter) ###
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(911, 789)
+        MainWindow.resize(1200, 800)
         self.set_window_icon(MainWindow)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -273,6 +273,7 @@ class MainWindow(QMainWindow):
                 self.directory_tree_view.setModel(self.file_system_model)
                 index = self.file_system_model.index(path)
                 self.directory_tree_view.setRootIndex(index)
+                self.directory_tree_view.setColumnWidth(0, 300)
                 self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to recursive with files at path: {path}")
 
