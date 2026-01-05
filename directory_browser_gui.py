@@ -14,6 +14,8 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QStatusBar, QTreeView, QWidget, QFileSystemModel,
     QVBoxLayout, QLabel)
 
+from gui_config import FOLDERS_ONLY, MAINWINDOW_SIZE_X, MAINWINDOW_SIZE_Y
+
 import sys
 import os
 from multiprocessing import freeze_support
@@ -28,7 +30,7 @@ class MainWindow(QMainWindow):
         ### Set up main GUI components (MainWindow, centralwidget, splitter) ###
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(1200, 800)
+        MainWindow.resize(MAINWINDOW_SIZE_X, MAINWINDOW_SIZE_Y)
         self.set_window_icon(MainWindow)
         sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -237,17 +239,15 @@ class MainWindow(QMainWindow):
             icon.addFile(icon_path)
             widget.setIcon(icon)
     
-    def populate_tree_view(self, path: str, files: bool=True) -> None:
+    def populate_tree_view(self, path: str) -> None:
         """
         Populates the directory tree view with a list of files and/or folders.
 
         :param path: A string representing the directory path to scan.
-        :param files: A boolean indicating whether to include files in the scan results. Default is True.
         :return: None
         """
-    
         try:
-            if not files:
+            if FOLDERS_ONLY:
                 self.standard_item_model = QStandardItemModel()
                 self.directory_tree_view.setHeaderHidden(True)
 
@@ -268,7 +268,7 @@ class MainWindow(QMainWindow):
                 self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to non-recursive without files at path: {path}")
             
-            elif files:
+            elif not FOLDERS_ONLY:
                 self.file_system_model = CheckableFileSystemModel()
                 self.file_system_model.setRootPath(path)
                 self.directory_tree_view.setModel(self.file_system_model)
