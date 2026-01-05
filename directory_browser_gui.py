@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (QApplication, QCheckBox, QGridLayout, QGroupBox,
     QStatusBar, QTreeView, QWidget, QFileSystemModel,
     QVBoxLayout, QLabel)
 
-from gui_config import FOLDERS_ONLY, MAINWINDOW_SIZE_X, MAINWINDOW_SIZE_Y
+from gui_config import MAINWINDOW_SIZE_X, MAINWINDOW_SIZE_Y, FOLDERS_ONLY, STATIC_SCROLLABLE_AREA
 
 import sys
 import os
@@ -171,6 +171,7 @@ class MainWindow(QMainWindow):
         self.inspector_scroll_area.setWidget(self.scroll_area_widget_contents)
 
         self.gridLayout_4.addWidget(self.inspector_scroll_area, 3, 0, 1, 1)
+        self.setup_scrollable_area()
 
         self.top_vertical_spacer = QSpacerItem(0, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
@@ -197,6 +198,28 @@ class MainWindow(QMainWindow):
         self.scan_button.setDefault(False)
 
         QMetaObject.connectSlotsByName(MainWindow)
+
+    def setup_scrollable_area(self) -> None:
+        """
+        Sets up the scrollable area for the inspector.
+
+        :return: None
+        """
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+
+        if not STATIC_SCROLLABLE_AREA:
+            layout.addWidget(QLabel(f"Default Scrollable Area"))
+            layout.addStretch()
+            self.inspector_scroll_area.setWidget(widget)
+
+        else:
+            layout.addWidget(QLabel(f"Static Scrollable Area"))
+            
+            # Add more info depending on your needs
+
+            layout.addStretch()
+            self.inspector_scroll_area.setWidget(widget)
 
     def folder_select(self, line_edit: QLineEdit) -> None:
         """
@@ -265,7 +288,6 @@ class MainWindow(QMainWindow):
 
                     self.standard_item_model.appendRow(item)
                 self.directory_tree_view.setModel(self.standard_item_model)
-                self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to non-recursive without files at path: {path}")
             
             elif not FOLDERS_ONLY:
@@ -275,8 +297,10 @@ class MainWindow(QMainWindow):
                 index = self.file_system_model.index(path)
                 self.directory_tree_view.setRootIndex(index)
                 self.directory_tree_view.setColumnWidth(0, 300)
-                self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
                 print(f"Set tree view to recursive with files at path: {path}")
+            
+            if not STATIC_SCROLLABLE_AREA:
+                self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
 
         except Exception as e:
             self.messagebox("error", "Error Scanning Directory", str(e))
