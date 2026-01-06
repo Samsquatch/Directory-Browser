@@ -265,7 +265,6 @@ class MainWindow(QMainWindow):
         icon = QIcon()
         data_path = os.path.abspath(os.path.dirname(__file__))
         icon_path = os.path.join(data_path, "gui_assets", icon_name)
-        print(f"icon_path: {icon_path}")
         if os.path.isfile(icon_path):
             icon.addFile(icon_path)
             widget.setIcon(icon)
@@ -296,7 +295,6 @@ class MainWindow(QMainWindow):
 
                     self.standard_item_model.appendRow(item)
                 self.directory_tree_view.setModel(self.standard_item_model)
-                print(f"Set tree view to non-recursive without files at path: {path}")
             
             elif not FOLDERS_ONLY:
                 self.file_system_model = CheckableFileSystemModel()
@@ -305,7 +303,6 @@ class MainWindow(QMainWindow):
                 index = self.file_system_model.index(path)
                 self.directory_tree_view.setRootIndex(index)
                 self.directory_tree_view.setColumnWidth(0, 300)
-                print(f"Set tree view to recursive with files at path: {path}")
             
             if not STATIC_SCROLLABLE_AREA:
                 self.directory_tree_view.selectionModel().selectionChanged.connect(self.on_item_selected)
@@ -426,7 +423,6 @@ class MainWindow(QMainWindow):
         :param worker_thread: A QThread object. (Optional)
         :return bool: A boolean indicating whether the user clicked 'OK' or 'Cancel'.
         """
-        print(f"message_type: {message_type}")
         msg_box = QMessageBox()
         self.set_window_icon(window=msg_box)
         msg_box.setWindowTitle(title)
