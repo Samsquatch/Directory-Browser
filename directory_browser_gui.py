@@ -21,13 +21,21 @@ import os
 from multiprocessing import freeze_support
 
 class MainWindow(QMainWindow):
+    """
+    Main Window class for the Directory Browser GUI.
+    Inherits from QMainWindow and sets up the GUI components.
+    """
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow: QMainWindow) -> None:
+        """
+        Sets up the main window and its components.
 
-        ### Set up main GUI components (MainWindow, centralwidget, splitter) ###
+        :param MainWindow: A QMainWindow object representing the main window.
+        :return None:
+        """
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(MAINWINDOW_SIZE_X, MAINWINDOW_SIZE_Y)
@@ -203,7 +211,7 @@ class MainWindow(QMainWindow):
         """
         Sets up the scrollable area for the inspector.
 
-        :return: None
+        :return None:
         """
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -226,7 +234,7 @@ class MainWindow(QMainWindow):
         Opens a file dialog to select an input or folder.
 
         :param line_edit: A QLineEdit object where the selected folder path will be set.
-        :return: None
+        :return None:
         """
         folderpath = QFileDialog.getExistingDirectory(self, f"Select input folder")
         line_edit.setText(folderpath)
@@ -237,7 +245,7 @@ class MainWindow(QMainWindow):
         Sets the window icon for a given widget.
 
         :param widget: A QWidget object for which the icon will be set.
-        :return: None
+        :return None:
         """
         icon = QIcon()
         data_path = os.path.abspath(os.path.dirname(__file__))
@@ -252,7 +260,7 @@ class MainWindow(QMainWindow):
 
         :param widget: A QWidget object for which the icon will be set.
         :param icon_name: A string representing the icon file name.
-        :return: None
+        :return None:
         """
         icon = QIcon()
         data_path = os.path.abspath(os.path.dirname(__file__))
@@ -267,7 +275,7 @@ class MainWindow(QMainWindow):
         Populates the directory tree view with a list of files and/or folders.
 
         :param path: A string representing the directory path to scan.
-        :return: None
+        :return None:
         """
         try:
             if FOLDERS_ONLY:
@@ -310,7 +318,7 @@ class MainWindow(QMainWindow):
         """
         Executes an action based on the checked items in the directory tree view.
 
-        :return: None
+        :return None:
         """
         try:
             checked_items = self.get_checked_items()
@@ -326,7 +334,7 @@ class MainWindow(QMainWindow):
         """
         Retrieves a list of checked items from the directory tree view.
 
-        :return: A list of strings representing the paths of checked items.
+        :return list: A list of strings representing the paths of checked items.
         """
         checked_items = []
 
@@ -353,7 +361,7 @@ class MainWindow(QMainWindow):
         Retrieves the file path from a given model index.
 
         :param index: A QModelIndex object representing the selected item.
-        :return: A string representing the file path, or None if not found.
+        :return str|None: A string representing the file path, or None if not found.
         """
 
         model = index.model()
@@ -372,7 +380,7 @@ class MainWindow(QMainWindow):
         Builds a details widget for the selected item.
         
         :param path: A string representing the file or folder path.
-        :return: A QWidget object containing the details.
+        :return QWidget: A QWidget object containing the details.
         """
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -393,7 +401,7 @@ class MainWindow(QMainWindow):
         Called when an item is selected in the directory tree view.
         
         :param selected: A QItemSelection object representing the selected item.
-        :return: None
+        :return None:
         """
 
         indexes = selected.indexes()
@@ -416,7 +424,7 @@ class MainWindow(QMainWindow):
         :param title: A string containing the error title of the message box.
         :param message: A string containing the error message.
         :param worker_thread: A QThread object. (Optional)
-        :return: A boolean indicating whether the user clicked 'OK' or 'Cancel'.
+        :return bool: A boolean indicating whether the user clicked 'OK' or 'Cancel'.
         """
         print(f"message_type: {message_type}")
         msg_box = QMessageBox()
@@ -451,7 +459,13 @@ class CheckableFileSystemModel(QFileSystemModel):
         super().__init__(parent)
         self._checked = {}  # path → Qt.CheckState
 
-    def flags(self, index):
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        """
+        Retrieves the item flags for a given model index.
+
+        :param index: A QModelIndex object representing the item index.
+        :return Qt.ItemFlags: The item flags for the given index.
+        """
         default = super().flags(index)
         if not index.isValid():
             return default
@@ -462,14 +476,29 @@ class CheckableFileSystemModel(QFileSystemModel):
 
         return default
 
-    def data(self, index, role):
+    def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> object:
+        """
+        Retrieves the data for a given model index and role.
+
+        :param index: A QModelIndex object representing the item index.
+        :param role: A Qt.ItemDataRole value indicating the type of data to retrieve.
+        :return object: The data for the given index and role.
+        """
         if role == Qt.CheckStateRole and index.column() == 0:
             path = self.filePath(index)
             return self._checked.get(path, Qt.Unchecked)
 
         return super().data(index, role)
 
-    def setData(self, index, value, role):
+    def setData(self, index: QModelIndex, value: Qt.CheckState, role: Qt.ItemDataRole) -> bool:
+        """
+        Sets the data for a given model index and role.
+
+        :param index: A QModelIndex object representing the item index.
+        :param value: The check state value to apply.
+        :param role: A Qt.ItemDataRole value indicating the type of data to set.
+        :return bool: A boolean indicating whether the data was successfully set.
+        """
         if role == Qt.CheckStateRole and index.column() == 0:
             path = self.filePath(index)
             self._checked[path] = value
@@ -483,8 +512,14 @@ class CheckableFileSystemModel(QFileSystemModel):
 
         return super().setData(index, value, role)
 
-    def _set_children_recursive(self, parent_index, value):
-        """Recursively apply check state to all descendants."""
+    def _set_children_recursive(self, parent_index: QModelIndex, value: Qt.CheckState) -> None:
+        """
+        Recursively apply check state to all descendants.
+
+        :param parent_index: A QModelIndex object representing the parent item index.
+        :param value: The check state value to apply.
+        :return None:
+        """
         rows = self.rowCount(parent_index)
 
         for row in range(rows):
