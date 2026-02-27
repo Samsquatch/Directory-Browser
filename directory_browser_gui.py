@@ -179,7 +179,7 @@ class MainWindow(QMainWindow):
         self.inspector_scroll_area.setWidget(self.scroll_area_widget_contents)
 
         self.gridLayout_4.addWidget(self.inspector_scroll_area, 3, 0, 1, 1)
-        self.setup_scrollable_area()
+        self.setup_default_scrollable_area()
 
         self.top_vertical_spacer = QSpacerItem(0, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
 
@@ -207,9 +207,10 @@ class MainWindow(QMainWindow):
 
         QMetaObject.connectSlotsByName(MainWindow)
 
-    def setup_scrollable_area(self) -> None:
+    def setup_default_scrollable_area(self) -> None:
         """
-        Sets up the scrollable area for the inspector.
+        Sets up the the default scrollable area for the inspector. 
+        If STATIC_SCROLLABLE_AREA is False, the layout in this function will be replaced with a unique selected_item_details_widget for current selected file or folder.
 
         :return None:
         """
@@ -368,7 +369,7 @@ class MainWindow(QMainWindow):
 
         return None
     
-    def build_details_widget(self, path: str) -> QWidget:
+    def selected_item_details_widget(self, path: str) -> QWidget:
         """
         Builds a details widget for the selected item.
         
@@ -405,7 +406,7 @@ class MainWindow(QMainWindow):
         path = self.get_item_path_from_index(index)
 
         if path:
-            widget = self.build_details_widget(path)
+            widget = self.selected_item_details_widget(path)
             self.inspector_scroll_area.setWidget(widget)
 
     
