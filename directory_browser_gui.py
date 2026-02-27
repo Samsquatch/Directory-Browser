@@ -129,18 +129,18 @@ class MainWindow(QMainWindow):
         self.browse_button.setSizePolicy(sizePolicy)
         self.gridLayout_2.addWidget(self.browse_button, 0, 1, 1, 1)
 
-        self.scan_button = QPushButton(self.groupBox)
-        self.scan_button.setObjectName(u"scan_button")
-        self.scan_button.setText(QCoreApplication.translate("MainWindow", u" Scan", None))
-        self.scan_button.clicked.connect(lambda: self.populate_tree_view(self.path_line_edit.text()))
-        sizePolicy.setHeightForWidth(self.scan_button.sizePolicy().hasHeightForWidth())
-        self.scan_button.setSizePolicy(sizePolicy)
-        self.scan_button.setMinimumSize(QSize(20, 20))
-        self.scan_button.setAutoFillBackground(False)
-        self.scan_button.setStyleSheet(u"")
-        self.set_widget_icon(self.scan_button, "refresh-arrows.png")
-        self.scan_button.setFlat(False)
-        self.gridLayout_2.addWidget(self.scan_button, 1, 1, 1, 1)
+        self.refresh_button = QPushButton(self.groupBox)
+        self.refresh_button.setObjectName(u"refresh_button")
+        self.refresh_button.setText(QCoreApplication.translate("MainWindow", u" Refresh", None))
+        self.refresh_button.clicked.connect(lambda: self.populate_tree_view(self.path_line_edit.text()))
+        sizePolicy.setHeightForWidth(self.refresh_button.sizePolicy().hasHeightForWidth())
+        self.refresh_button.setSizePolicy(sizePolicy)
+        self.refresh_button.setMinimumSize(QSize(20, 20))
+        self.refresh_button.setAutoFillBackground(False)
+        self.refresh_button.setStyleSheet(u"")
+        self.set_widget_icon(self.refresh_button, "refresh-arrows.png")
+        self.refresh_button.setFlat(False)
+        self.gridLayout_2.addWidget(self.refresh_button, 1, 1, 1, 1)
 
         self.gridLayout_3.addWidget(self.groupBox, 0, 0, 1, 1)
 
@@ -203,7 +203,7 @@ class MainWindow(QMainWindow):
 
         self.gridLayout_4.addWidget(self.execute_push_button, 1, 0, 1, 1, Qt.AlignmentFlag.AlignHCenter)
 
-        self.scan_button.setDefault(False)
+        self.refresh_button.setDefault(False)
 
         QMetaObject.connectSlotsByName(MainWindow)
 
