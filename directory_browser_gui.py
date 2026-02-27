@@ -379,13 +379,12 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
+        # This is where you can customize the content of the details widget. For now, it just displays the path and size (if it's a file).
         layout.addWidget(QLabel(f"<b>Path:</b> {path}"))
 
         if os.path.exists(path):
             size = os.path.getsize(path)
             layout.addWidget(QLabel(f"Size: {size} bytes"))
-        
-        # Add more info depending on your needs
 
         layout.addStretch()
         return widget
