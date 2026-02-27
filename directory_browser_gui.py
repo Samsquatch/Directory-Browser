@@ -216,18 +216,14 @@ class MainWindow(QMainWindow):
         widget = QWidget()
         layout = QVBoxLayout(widget)
 
+        # This is where you can customize the content of the scrollable area. For now, it just displays a label indicating whether the scrollable area is static or not.
         if not STATIC_SCROLLABLE_AREA:
-            layout.addWidget(QLabel(f"Default Scrollable Area"))
-            layout.addStretch()
-            self.inspector_scroll_area.setWidget(widget)
-
+            layout.addWidget(QLabel(f"Unique Scrollable Area"))
         else:
             layout.addWidget(QLabel(f"Static Scrollable Area"))
-            
-            # Add more info depending on your needs
 
-            layout.addStretch()
-            self.inspector_scroll_area.setWidget(widget)
+        layout.addStretch()
+        self.inspector_scroll_area.setWidget(widget)
 
     def folder_select(self, line_edit: QLineEdit) -> None:
         """
