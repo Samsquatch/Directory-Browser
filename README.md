@@ -12,4 +12,4 @@ The GUI Directory Viewer is a modular Python application designed to provide a g
 - File/Folder details widget: Go to directory_browser_gui.MainWindow.selected_item_details_widget. It's currently based on the selected File/Folder path.
 
 ## Set what happens when the "Execute" button is pressed:
-Got to the function: directory_browser_gui.MainWindow.execute_action
+Go to the function: directory_browser_gui.MainWindow.execute_action
