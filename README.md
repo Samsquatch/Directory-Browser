@@ -10,3 +10,6 @@ The GUI Directory Viewer is a modular Python application designed to provide a g
 ## Set scrollable area (right panel) content:
 - Default/Static Widget: Go to directory_browser_gui.MainWindow.setup_default_scrollable_area. If STATIC_SCROLLABLE_AREA is set to false this will be replaced with directory_browser_gui.MainWindow.selected_item_details_widget.
 - File/Folder details widget: Go to directory_browser_gui.MainWindow.selected_item_details_widget. It's currently based on the selected File/Folder path.
+
+## Set what happens when the "Execute" button is pressed:
+Got to the function: directory_browser_gui.MainWindow.execute_action
