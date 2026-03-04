@@ -150,6 +150,7 @@ class MainWindow(QMainWindow):
         self.directory_tree_view.setSizePolicy(sizePolicy2)
         self.directory_tree_view.setMinimumSize(QSize(300, 200))
         self.directory_tree_view.setAlternatingRowColors(True)
+        self.populate_tree_view("")  # initialize directory_tree_view with empty path
 
         self.gridLayout_3.addWidget(self.directory_tree_view, 1, 0, 1, 1)
 
